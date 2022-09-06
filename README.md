@@ -1,2 +1,4 @@
-# little-apps
-A collection of apps to practice React from tutorials around the internet. Check the branches to find each app.
+##Little Apps
+#Counter
+
+Back to absolute basics with a good ole React counter
