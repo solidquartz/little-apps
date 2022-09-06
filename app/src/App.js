@@ -1,67 +1,77 @@
-import React, { useState, useEffect } from "react";
-import PokemonList from "./PokemonList";
-import axios from 'axios';
-import Pagination from "./Pagination";
+import React, { useState, useEffect, useRef, useCallback } from "react";
+import useBookSearch from "./useBookSearch";
 
 
-function App() {
+export default function App() {
 
-  const [pokemon, setPokemon] = useState([]);
-  const [currentPageUrl, setCurrentPageUrl] = useState('https://pokeapi.co/api/v2/pokemon');
-  //the PokeAPI has 'next' and 'previous' keys we can use!
-  const [nextPageUrl, setNextPageUrl] = useState();
-  const [prevPageUrl, setPrevPageUrl] = useState();
-  //so the user doesn't think the site is broken if it's slow:
-  const [loading, setLoading] = useState(true);
+  const [query, setQuery] = useState();
+  const [pageNumber, setPageNumber] = useState(1);
 
-  //grabs only the pokemon names from the api and maps them for use in the PokemonList component (which requires an array)
-  useEffect(() => {
+  const {
+    books,
+    hasMore,
+    loading,
+    error
+  } = useBookSearch(query, pageNumber);
 
-    setLoading(true);
-
-    let cancel;
-
-    axios.get(currentPageUrl, {
-      //every time axios makes a new call, it will set `cancel` to the CancelToken
-      cancelToken: new axios.CancelToken(c => cancel = c)
-    })
-      .then(res => {
-        setLoading(false);
-        setNextPageUrl(res.data.next);
-        setPrevPageUrl(res.data.previous);
-        setPokemon(res.data.results.map(p => p.name));
-      });
-
-    //cleans up after the axios request; cancels the previous request every time there is a new request so we never have old data (e.g., if users spam the buttons)
-    return () => cancel();
-
-  }, [currentPageUrl]);
-  //every time we get a new page, we want to rerender the pokemon. so when currentPageUrl changes, it triggers the useEffect and the code inside it runs again
+  //ref: value that persists after each render (not part of state), often used to store references to elements, or things related to Document API.
+  //we're using Intersection Observer, part of Document API: says when the referenced element is in view
+  const observer = useRef();
+  //when the reference changes, it doesn't rerender on its own, so we use useCallback
+  //'node' corresponds to the individual element with the lastBookElementRef ref
 
 
-  const goToNextPage = () => {
-    setCurrentPageUrl(nextPageUrl);
+  const lastBookElementRef = useCallback(node => {
+    //prevents constant API calls when there is nothing
+    if (loading) return;
+    //if there is an observer, disconnect from it (cleanup) so the new last element ref will be hooked up correctly
+    if (observer.current) observer.current.disconnect();
+    observer.current = new IntersectionObserver(entries => {
+      //if the "ref" entry is on the page somewhere AND there are more entries
+      if (entries[0].isIntersecting && hasMore) {
+        setPageNumber(prevPageNumber => prevPageNumber + 1);
+      }
+    });
+    //if something is actually our last element, our observer will observe it
+    if (node) observer.current.observe(node);
+  }, [loading, hasMore]);
+
+
+
+  useBookSearch(query, pageNumber);
+
+  const handleSearch = (e) => {
+    setQuery(e.target.value);
+    setPageNumber(1);
   };
-
-  const goToPrevPage = () => {
-    setCurrentPageUrl(prevPageUrl);
-  };
-
-
-  if (loading) return "Loading...";
-
 
   return (
     <>
-      <PokemonList pokemon={pokemon} />
-      <Pagination
-        //prevents going backwards when on the first page or forward on the last
-        goToNextPage={nextPageUrl ? goToNextPage : null}
-        goToPrevPage={prevPageUrl ? goToPrevPage : null}
-      />
+      <input
+        type="text"
+        value={query}
+        onChange={handleSearch}
+      >
+      </input>
+
+      {books.map((book, index) => {
+        //sets the reference for only the very last book
+        if (books.length === index + 1) {
+          //whenever the element is created, it will call the function inside useCallback with the reference to this element
+          return <div ref={lastBookElementRef} key={book}>{book}</div>;
+        } else {
+          //if it's not the last book, just render the title on the page
+          return <div key={book}>{book}</div>;
+        }
+      })}
+
+      <div>
+        {loading && 'Loading...'}
+      </div>
+
+      <div>
+        {error && 'Error!'}
+      </div>
     </>
   );
 }
-
-
-export default App;

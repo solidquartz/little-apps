@@ -1,2 +1,5 @@
-# little-apps
-A collection of apps to practice React from tutorials around the internet. Check the branches to find each app.
+## Pokemon App
+
+Practice for useState, useEffect, axios, component organization best practices
+
+*From Web Dev Simplified*

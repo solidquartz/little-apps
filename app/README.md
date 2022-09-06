@@ -1,4 +1,4 @@
-#Pokemon App
+## Pokemon App
 
 Practice for useState, useEffect, axios, component organization best practices
 
