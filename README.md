@@ -1,5 +1,5 @@
-## Pokemon App
+## Infinite Scroll
 
-Practice for useState, useEffect, axios, component organization best practices
+Practice for useState, useEffect, axios, useRef, useCallback, Intersection Observer, custom hook
 
 *From Web Dev Simplified*
