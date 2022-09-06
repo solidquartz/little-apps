@@ -9,3 +9,6 @@ useContext practice switching between a logged in and out view
 
 ### Pokemon
 Using the PokeAPI to practice useState, useEffect, axios, and pagination
+
+### Infinite Scroll
+Using the OpenLibrary API, searches and infinitely scrolls through results. Uses a custom hook, useRef, useCallback, and Intersection Observer
