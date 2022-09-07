@@ -1,2 +1,3 @@
-# little-apps
-A collection of apps to practice React from tutorials around the internet. Check the branches to find each app.
+## Counter Reducer
+
+The good ole counter app, this time is useReducer as a simple example
