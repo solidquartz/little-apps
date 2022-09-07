@@ -1,3 +1,3 @@
-## Counter Reducer
+## To-Do Reducer
 
-The good ole counter app, this time is useReducer as a simple example
+A more realistic useReducer example with a simple To-Do List app
